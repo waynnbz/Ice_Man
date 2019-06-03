@@ -1,0 +1,7 @@
+*
+
+!.gitignore
+!Actor.h
+!Actor.cpp
+!StudentWorld.cpp
+!StudentWorld.h
