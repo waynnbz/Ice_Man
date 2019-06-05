@@ -19,6 +19,12 @@ bool wellDistributed(int x, int y, const vector<Actor*> &va) {
 }
 
 
+double getRadius(Actor* a, Actor* b) {
+	double radius = sqrt(pow(a->getX() - b->getX(), 2) + pow(a->getY() - b->getY(), 2));
+	return radius;
+}
+
+
 ///////////////////////
 
 GameWorld* createStudentWorld(string assetDir)
@@ -44,6 +50,26 @@ void StudentWorld::clearIce(int x, int y)
 			}
 		}
 	}
+}
+
+
+int StudentWorld::annoyAllNearbyActors(Actor* annoyer, int points, int radius) 
+{
+	int count = 0;
+	if (annoyer != sw_iceman) {
+		if (getRadius(annoyer, sw_iceman) <= radius) {
+			sw_iceman->annoy(points);
+			++count;
+		}
+
+	}
+
+	/*for (auto a : sw_actors) {
+
+	}*/
+
+
+	return count;
 }
 
 

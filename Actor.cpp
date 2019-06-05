@@ -10,11 +10,29 @@ void Boulder::doSomething()
 {
 	if (isAlive()) {
 		if (m_state == stable) {
-			if (!getWorld()->boulderSupport(getX(), getY()))
+			if (!getWorld()->boulderSupport(getX(), getY())) {
 				m_state = waiting;
+				waitTime = 0;
+			}
+			
 		}
 		else if (m_state == waiting) {
-			//sleep 
+			if (waitTime == 30) 
+				m_state = falling;
+			else
+			++waitTime;
+		}
+		else if (m_state == falling) {
+			getWorld()->playSound(SOUND_FALLING_ROCK);
+
+			getWorld()->annoyAllNearbyActors(this, 100, 3);
+
+			moveToIfPossible(getX(), getY() - 1);
+			if (getWorld()->boulderSupport(getX(), getY())) {
+				m_state = dead;
+				setDead();
+				setVisible(false);
+			}
 		}
 	}
 }

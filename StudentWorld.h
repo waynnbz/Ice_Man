@@ -26,6 +26,8 @@ public:
 
 	void clearIce(int x, int y);
 
+	int annoyAllNearbyActors(Actor* annoyer, int points, int radius);
+
 
 	virtual int init()
 	{
@@ -63,12 +65,24 @@ public:
 		
 
 		sw_iceman->doSomething();
+
+		for (auto it = sw_actors.begin(); it != sw_actors.end(); ++it) {
+			if (!(*it)->isAlive()) {
+				delete *it;
+				it = sw_actors.erase(it);
+			}
+			(*it)->doSomething();
+		}
+
+		if (!sw_iceman->isAlive()) {
+			decLives();
+			return GWSTATUS_PLAYER_DIED;
+		}
 		
 		return GWSTATUS_CONTINUE_GAME;
 
 
-		decLives();
-		return GWSTATUS_PLAYER_DIED;
+		
 	}
 
 	virtual void cleanUp()
@@ -88,8 +102,11 @@ public:
 
 
 	bool boulderSupport(int x, int y) {
+		if (y == 0)
+			return true;
+
 		for (int i = 0; i <= 3; ++i) {
-			if (sw_ice[x+i][y] != nullptr)
+			if (sw_ice[x+i][y-1] != nullptr) //missed minus one here
 				return true;
 		}
 		return false;

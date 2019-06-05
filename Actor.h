@@ -84,7 +84,7 @@ public:
 class Boulder : public Actor
 {
 public:
-	enum State { stable, waiting, falling };
+	enum State { stable, waiting, falling, dead };
 
 	Boulder(StudentWorld* world, int startX, int startY)
 		: Actor(world, IID_BOULDER, startX, startY, down, 1.0, 1) {
@@ -97,6 +97,7 @@ public:
 
 private:
 	State m_state;
+	unsigned int waitTime;
 };
 
 //////////////////SQUIRT
@@ -131,7 +132,7 @@ public:
 	Agent(StudentWorld* world, int imageID, int startX, int startY, Direction startDir, unsigned int hitPoints)
 		: Actor(world, imageID, startX, startY, startDir) 
 	{
-
+		m_hitPoints = hitPoints;
 	};
 
 	virtual void addGold() = 0;
@@ -140,7 +141,12 @@ public:
 		return m_hitPoints;
 	}
 
-	//virtual bool annoy(unsigned int amount);
+	virtual bool annoy(unsigned int amt) {
+		m_hitPoints -= amt;
+		if (m_hitPoints == 0)
+			setDead();
+		return true;
+	}
 	//virtual bool canPickThingsUp() const;
 
 
