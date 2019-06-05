@@ -13,9 +13,11 @@ class StudentWorld;
 class Actor : public GraphObject	//base object class
 {
 public:
-	Actor(int imageID, int startX, int startY, Direction dir = right, double size = 1.0, unsigned int depth = 0) 
+	Actor(StudentWorld* world, int imageID, int startX, int startY, Direction dir, double size = 1.0, unsigned int depth = 0) 
 		: GraphObject(imageID, startX, startY, dir, size, depth) 
 	{
+		m_world = world;
+		m_alive = true;
 		setVisible(true);
 	};
 
@@ -26,44 +28,145 @@ public:
 
 	virtual void doSomething() = 0;
 
+	bool isAlive() const {
+		return m_alive;
+	}
+
+	void setDead() {
+		m_alive = false;
+	}
+
+	virtual bool annoy(unsigned int amt) {
+		return false;
+	}
+
+	StudentWorld* getWorld() const {
+		return m_world;
+	}
+
+
+
+	bool moveToIfPossible(int x, int y) {
+		if (x >= 0 && x <= VIEW_WIDTH-4 && y >= 0 && y <= VIEW_HEIGHT-4) {
+			moveTo(x, y);
+			return true;
+		}
+		return false;
+	}
+
+
 private:
+	StudentWorld* m_world;
+	bool m_alive;
 };
 
+
+
+////////////////////////////OBSTACLES////////////////////////////////////////
+
+
+///////////////////ICE
 class Ice : public Actor
 {
 public:
-	Ice(int x = 0, int y = 0) : Actor(IID_ICE, x, y, right, 0.25, 3) {};
+	Ice(int x = 0, int y = 0) 
+		: Actor(nullptr, IID_ICE, x, y, right, 0.25, 3) {};
 
 	~Ice() {
-		getGraphObjects(3).erase(this);
+		//getGraphObjects(3).erase(this);
 		//setVisible(false);
 	};
 
 	virtual void doSomething() {};
-
-private:
-
 };
 
-class Iceman : public Actor
+///////////////Boulder
+class Boulder : public Actor
 {
 public:
-	Iceman(int x = 30, int y = 60) : Actor(IID_PLAYER, x, y) {};
+	enum State { stable, waiting, falling };
 
-	~Iceman() {};
+	Boulder(StudentWorld* world, int startX, int startY)
+		: Actor(world, IID_BOULDER, startX, startY, down, 1.0, 1) {
+		setVisible(true);
+		m_state = stable;
+	};
 
-	void setWorld(StudentWorld* w) {
-		sWorld = w;
-	}
-
-	StudentWorld* getWorld() {
-		return sWorld;
-	}
 
 	virtual void doSomething();
 
 private:
-	StudentWorld* sWorld;
+	State m_state;
+};
+
+//////////////////SQUIRT
+class Squirt : public Actor
+{
+
+
+};
+
+
+
+/////////////////////////////ActivatingObject//////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////AGENTS////////////////////////////////
+
+class Agent : public Actor
+{
+public:
+	Agent(StudentWorld* world, int imageID, int startX, int startY, Direction startDir, unsigned int hitPoints)
+		: Actor(world, imageID, startX, startY, startDir) 
+	{
+
+	};
+
+	virtual void addGold() = 0;
+
+	unsigned int getHitPoints() const {
+		return m_hitPoints;
+	}
+
+	//virtual bool annoy(unsigned int amount);
+	//virtual bool canPickThingsUp() const;
+
+
+private:
+	unsigned int m_hitPoints;
+};
+
+
+
+class Iceman : public Agent
+{
+public:
+	Iceman(StudentWorld* world = nullptr, int x = 30, int y = 60) : Agent(world, IID_PLAYER, x, y, right, 100) {};
+
+	~Iceman() {};
+
+	virtual void doSomething();
+
+	virtual void addGold()
+	{
+
+	}
+
+
+
+private:
 
 };
 

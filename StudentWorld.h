@@ -5,34 +5,37 @@
 #include "GameConstants.h"
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "Actor.h"
 
-
-// Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
+//class Actor;
+//class Ice;
+//class Iceman;
 
 class StudentWorld : public GameWorld
 {
 public:
 	StudentWorld(std::string assetDir)
-		: GameWorld(assetDir)
-	{
-	}
+		: GameWorld(assetDir){}
 
-	//~StudentWorld();
+	virtual ~StudentWorld() {}
+
+
+	void addActor(std::vector<Actor*> actors);
+
+	void clearIce(int x, int y);
+
 
 	virtual int init()
 	{
 
-		sw_iceman = new Iceman;
-		sw_iceman->setWorld(this);
+		//add Ice
+		sw_ice = new Ice**[VIEW_WIDTH];
+		for (int i = 0; i < VIEW_WIDTH; ++i) {
 
-		
-		sw_ice = new Ice**[sw_x];
-		for (int i = 0; i <= sw_x; ++i) {
-
-			sw_ice[i] = new Ice*[sw_y];
-			for (int j = 0; j <= sw_y; ++j) {
+			sw_ice[i] = new Ice*[VIEW_HEIGHT - 4];
+			for (int j = 0; j < VIEW_HEIGHT-4; ++j) {
 				if (i >= 30 && i <= 33 && j >= 4 && j <= 59) {
 					sw_ice[i][j] = nullptr;
 					continue;
@@ -41,6 +44,13 @@ public:
 				sw_ice[i][j] = new Ice(i, j);
 			}
 		}
+
+
+		//add iceman
+		sw_iceman = new Iceman(this);
+
+		
+		addActor(sw_actors);
 
 
 		return GWSTATUS_CONTINUE_GAME;
@@ -63,8 +73,8 @@ public:
 
 	virtual void cleanUp()
 	{
-		for (int i = 0; i <= sw_x; ++i) {
-			for (int j = 0; j <= sw_y; ++j) {
+		for (int i = 0; i <= VIEW_WIDTH; ++i) {
+			for (int j = 0; j < VIEW_HEIGHT-4; ++j) {
 				delete sw_ice[i][j];
 				sw_ice[i][j] = nullptr;
 			}
@@ -76,16 +86,26 @@ public:
 		delete sw_iceman;
 	}
 
+
+	bool boulderSupport(int x, int y) {
+		for (int i = 0; i <= 3; ++i) {
+			if (sw_ice[x+i][y] != nullptr)
+				return true;
+		}
+		return false;
+	}
+
 	Ice*** getIce() {
 		return sw_ice;
 	}
 
 private:
-	const int sw_x = 64;
-	const int sw_y = 59;
+	//const int sw_y = 59;
 	//tracking Ice and Iceman
+	//std::unique_ptr<Ice**> sw_ice;
 	Ice*** sw_ice;
 	Iceman* sw_iceman;
+	std::vector<Actor*> sw_actors;
 };
 
 #endif // STUDENTWORLD_H_
