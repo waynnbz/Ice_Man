@@ -45,7 +45,7 @@ public:
 		sw_iceman = new Iceman(this);
 
 		//add actors
-		addActor(sw_actors);
+		initActors();
 
 
 		return GWSTATUS_CONTINUE_GAME;
@@ -109,7 +109,7 @@ public:
 	}
 
 	//helpers
-	void addActor(std::vector<Actor*> actors);
+	void initActors();
 	void clearIce(int x, int y);
 	bool canActorMoveTo(Actor* a, int x, int y) const;
 	int annoyAllNearbyActors(Actor* annoyer, int points, int radius);

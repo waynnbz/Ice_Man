@@ -34,7 +34,7 @@ double getRadius(Actor* a, Actor* b) {
 
 //*******************Member Helper***********
 
-void StudentWorld::addActor(std::vector<Actor*> actors)
+void StudentWorld::initActors()
 {
 	std::srand(time(NULL));
 
@@ -79,6 +79,7 @@ void StudentWorld::clearIce(int x, int y)
 }
 
 
+//not done
 bool StudentWorld::canActorMoveTo(Actor* a, int x, int y) const
 {
 	if (x<0 || x > VIEW_WIDTH - 4 || y <0 || y > VIEW_HEIGHT - 4)
@@ -126,13 +127,22 @@ bool StudentWorld::canActorMoveTo(Actor* a, int x, int y) const
 int StudentWorld::annoyAllNearbyActors(Actor* annoyer, int points, int radius) 
 {
 	int count = 0;
-	if (annoyer != sw_iceman) {
-		if (getRadius(annoyer, sw_iceman) <= radius) {
-			sw_iceman->annoy(points);
-			++count;
-		}
 
+	//will annoyer ever be iceman??
+	if (getRadius(annoyer, sw_iceman) <= radius) {
+		sw_iceman->annoy(points);
+		++count;
 	}
+
+	//annoy all other actors
+	for (auto it = sw_actors.begin(); it != sw_actors.end(); ++it) {
+		if (getRadius(annoyer, *it) <= radius) {
+			(*it)->annoy(points);
+		}
+	}
+
+	
+
 
 	/*for (auto a : sw_actors) {
 

@@ -46,6 +46,45 @@ void Boulder::doSomething()
 	}
 }
 
+//********************Squirt
+void Squirt::doSomething()
+{
+	//annnoy protests and check travel distance
+	if (getWorld()->annoyAllNearbyActors(this, 2, 3) 
+		|| m_travelDistance == 0) {
+		setDead();
+		return;
+	}
+
+	//travel if no encounter happened
+	switch (getDirection()) {
+	case up:
+		if (moveToIfPossible(getX(), getY() + 1))
+			--m_travelDistance;
+		else
+			setDead();
+	case down:
+		if (moveToIfPossible(getX(), getY() - 1))
+			--m_travelDistance;
+		else
+			setDead();
+	case left:
+		if (moveToIfPossible(getX() - 1, getY()))
+			--m_travelDistance;
+		else
+			setDead();
+	case right:
+		if (moveToIfPossible(getX() + 1, getY()))
+			--m_travelDistance;
+		else
+			setDead();
+	default:
+		throw 0;
+	}
+
+	return;
+}
+
 
 //*****Agents
 //********************Ice Man
@@ -84,6 +123,9 @@ void Iceman::doSomething()
 			}
 			break;
 		case KEY_PRESS_SPACE:
+			if (m_water > 0) {
+
+			}
 			break;
 		default:
 			break;

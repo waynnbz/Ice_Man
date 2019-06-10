@@ -11,7 +11,8 @@ class StudentWorld;
 class Actor : public GraphObject	//base object class
 {
 public:
-	Actor(StudentWorld* world, int imageID, int startX, int startY, Direction dir, double size = 1.0, unsigned int depth = 0) 
+	Actor(StudentWorld* world, int imageID, int startX, int startY, 
+		Direction dir, double size = 1.0, unsigned int depth = 0) 
 		: GraphObject(imageID, startX, startY, dir, size, depth) 
 	{
 		m_world = world;
@@ -85,6 +86,7 @@ public:
 		setVisible(true);
 		m_state = stable;
 	};
+	~Boulder() {}
 
 
 	virtual void doSomething();
@@ -97,7 +99,18 @@ private:
 
 class Squirt : public Actor
 {
+public:
+	Squirt(StudentWorld* world, int startX, int startY, Direction dir)
+		: Actor(world, IID_WATER_SPURT, startX, startY, dir, 1.0, 1) {
+		setVisible(true);
+		m_travelDistance = 4;
+	}
+	~Squirt() {}
 
+	virtual void doSomething();
+
+private:
+	int m_travelDistance;
 
 };
 
@@ -124,7 +137,7 @@ public:
 
 	virtual bool annoy(unsigned int amt) {
 		m_hitPoints -= amt;
-		if (m_hitPoints == 0)
+		if (m_hitPoints <= 0)
 			setDead();
 		return true;
 	}
@@ -140,7 +153,9 @@ class Iceman : public Agent
 {
 public:
 	Iceman(StudentWorld* world = nullptr, int x = 30, int y = 60) 
-		: Agent(world, IID_PLAYER, x, y, right, 100) {};
+		: Agent(world, IID_PLAYER, x, y, right, 100) {
+		m_water = 5;
+	};
 	~Iceman() {};
 
 	virtual void doSomething();
@@ -149,12 +164,18 @@ public:
 		return true;
 	}
 
-	virtual void addGold() {}
+	void addGold() {
+
+	}
+
+	unsigned int getWater() const {
+		return m_water;
+	}
 
 
 
 private:
-
+	unsigned int m_water;
 };
 
 #endif // ACTOR_H_
