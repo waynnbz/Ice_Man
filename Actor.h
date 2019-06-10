@@ -3,12 +3,10 @@
 
 #include "GraphObject.h"
 
-//forward declaration
 class StudentWorld;
 
 
-// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
-
+//*********Base class
 
 class Actor : public GraphObject	//base object class
 {
@@ -20,18 +18,15 @@ public:
 		m_alive = true;
 		setVisible(true);
 	};
-
 	virtual ~Actor() {
-		setVisible(false);
+		//setVisible(false);
 	};
-
 
 	virtual void doSomething() = 0;
 
 	bool isAlive() const {
 		return m_alive;
 	}
-
 	void setDead() {
 		m_alive = false;
 	}
@@ -45,14 +40,17 @@ public:
 	}
 
 
+	virtual bool canActorPassThroughMe() const {
+		return false;
+	};
 
-	bool moveToIfPossible(int x, int y) {
-		if (x >= 0 && x <= VIEW_WIDTH-4 && y >= 0 && y <= VIEW_HEIGHT-4) {
-			moveTo(x, y);
-			return true;
-		}
+	virtual bool canDigThroughIce() const {
 		return false;
 	}
+
+
+	bool moveToIfPossible(int x, int y);
+
 
 
 private:
@@ -62,16 +60,13 @@ private:
 
 
 
-////////////////////////////OBSTACLES////////////////////////////////////////
+//*********Obstacle
 
-
-///////////////////ICE
 class Ice : public Actor
 {
 public:
 	Ice(int x = 0, int y = 0) 
 		: Actor(nullptr, IID_ICE, x, y, right, 0.25, 3) {};
-
 	~Ice() {
 		//getGraphObjects(3).erase(this);
 		//setVisible(false);
@@ -80,7 +75,7 @@ public:
 	virtual void doSomething() {};
 };
 
-///////////////Boulder
+
 class Boulder : public Actor
 {
 public:
@@ -100,7 +95,7 @@ private:
 	unsigned int waitTime;
 };
 
-//////////////////SQUIRT
+
 class Squirt : public Actor
 {
 
@@ -108,23 +103,10 @@ class Squirt : public Actor
 };
 
 
-
-/////////////////////////////ActivatingObject//////////////////////////////////////
-
+//********************Object
 
 
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////AGENTS////////////////////////////////
+//********************Agents
 
 class Agent : public Actor
 {
@@ -155,20 +137,20 @@ private:
 };
 
 
-
 class Iceman : public Agent
 {
 public:
-	Iceman(StudentWorld* world = nullptr, int x = 30, int y = 60) : Agent(world, IID_PLAYER, x, y, right, 100) {};
-
+	Iceman(StudentWorld* world = nullptr, int x = 30, int y = 60) 
+		: Agent(world, IID_PLAYER, x, y, right, 100) {};
 	~Iceman() {};
 
 	virtual void doSomething();
 
-	virtual void addGold()
-	{
-
+	virtual bool canDigThroughIce() const {
+		return true;
 	}
+
+	virtual void addGold() {}
 
 
 

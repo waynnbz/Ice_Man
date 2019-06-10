@@ -18,16 +18,9 @@ class StudentWorld : public GameWorld
 public:
 	StudentWorld(std::string assetDir)
 		: GameWorld(assetDir){}
-
 	virtual ~StudentWorld() {}
-
-
-	void addActor(std::vector<Actor*> actors);
-
-	void clearIce(int x, int y);
-
-	int annoyAllNearbyActors(Actor* annoyer, int points, int radius);
-
+	
+	//core 3 
 
 	virtual int init()
 	{
@@ -51,7 +44,7 @@ public:
 		//add iceman
 		sw_iceman = new Iceman(this);
 
-		
+		//add actors
 		addActor(sw_actors);
 
 
@@ -64,14 +57,22 @@ public:
 		// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
 		
 
+		return GWSTATUS_PLAYER_DIED;
+
 		sw_iceman->doSomething();
 
-		for (auto it = sw_actors.begin(); it != sw_actors.end(); ++it) {
+		//release dead actors
+		for (auto it = sw_actors.begin(); it != sw_actors.end(); ) {
 			if (!(*it)->isAlive()) {
 				delete *it;
 				it = sw_actors.erase(it);
 			}
-			(*it)->doSomething();
+			else {
+				(*it)->doSomething();
+				++it; 
+				//important to leave increament out of for statement 
+				//so to avoid repeatedly increase the iterator in case of deletion
+			}
 		}
 
 		if (!sw_iceman->isAlive()) {
@@ -87,38 +88,52 @@ public:
 
 	virtual void cleanUp()
 	{
-		for (int i = 0; i <= VIEW_WIDTH; ++i) {
-			for (int j = 0; j < VIEW_HEIGHT-4; ++j) {
-				delete sw_ice[i][j];
-				sw_ice[i][j] = nullptr;
-			}
-			delete[] *sw_ice[i];
-		}
-		delete[] **sw_ice; //messed up
+		//delete ice
+		//for (int i = 0; i <= VIEW_WIDTH; ++i) {
+		//	for (int j = 0; j < VIEW_HEIGHT-4; ++j) {
+		//		delete sw_ice[i][j];
+		//		sw_ice[i][j] = nullptr;
+		//	}
+		//	delete[] *sw_ice[i];
+		//}
+		//delete[] **sw_ice; //messed up
 
-
+		//delete iceman
 		delete sw_iceman;
-	}
 
-
-	bool boulderSupport(int x, int y) {
-		if (y == 0)
-			return true;
-
-		for (int i = 0; i <= 3; ++i) {
-			if (sw_ice[x+i][y-1] != nullptr) //missed minus one here
-				return true;
+		//release actors
+		for (auto it = sw_actors.begin(); it != sw_actors.end();) {
+			delete *it;
+			it = sw_actors.erase(it);
 		}
-		return false;
 	}
 
-	Ice*** getIce() {
+	//helpers
+	void addActor(std::vector<Actor*> actors);
+	void clearIce(int x, int y);
+	bool canActorMoveTo(Actor* a, int x, int y) const;
+	int annoyAllNearbyActors(Actor* annoyer, int points, int radius);
+
+
+
+	//DIY helpers
+	//bool boulderSupport(int x, int y) {
+	//	if (y == 0)
+	//		return true;
+
+	//	for (int i = 0; i <= 3; ++i) {
+	//		if (sw_ice[x + i][y - 1] != nullptr) //missed minus one here
+	//			return true;
+	//	}
+	//	return false;
+	//}
+
+	/*Ice*** getIce() {
 		return sw_ice;
-	}
+	}*/
+
 
 private:
-	//const int sw_y = 59;
-	//tracking Ice and Iceman
 	//std::unique_ptr<Ice**> sw_ice;
 	Ice*** sw_ice;
 	Iceman* sw_iceman;

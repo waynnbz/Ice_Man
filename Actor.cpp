@@ -1,16 +1,25 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 
+//******Actor
+bool Actor::moveToIfPossible(int x, int y) {
+	//boundary check only
+	if (x >= 0 && x <= VIEW_WIDTH - 4 && y >= 0 && y <= VIEW_HEIGHT - 4) {
+		if (getWorld()->canActorMoveTo(this, x, y)) {
+			moveTo(x, y);
+			return true;
+		}
+	}
+	return false;
+}
 
-
-//////////////////Boulder
-
-
+//*****Obstacles
+//********************Boulder
 void Boulder::doSomething()
 {
 	if (isAlive()) {
 		if (m_state == stable) {
-			if (!getWorld()->boulderSupport(getX(), getY())) {
+			if (getWorld()->canActorMoveTo(this, getX(), getY()-1)) {
 				m_state = waiting;
 				waitTime = 0;
 			}
@@ -23,12 +32,13 @@ void Boulder::doSomething()
 			++waitTime;
 		}
 		else if (m_state == falling) {
-			getWorld()->playSound(SOUND_FALLING_ROCK);
 
-			getWorld()->annoyAllNearbyActors(this, 100, 3);
+			if (moveToIfPossible(getX(), getY() - 1)) {
+				getWorld()->playSound(SOUND_FALLING_ROCK);
+				getWorld()->annoyAllNearbyActors(this, 100, 3);
+			}
 
-			moveToIfPossible(getX(), getY() - 1);
-			if (getWorld()->boulderSupport(getX(), getY())) {
+			else{
 				m_state = dead;
 				setDead();
 				setVisible(false);
@@ -38,35 +48,15 @@ void Boulder::doSomething()
 }
 
 
-// Students:  Add code to this file (if you wish), Actor.h, StudentWorld.h, and StudentWorld.cpp
-
-
+//*****Agents
+//********************Ice Man
 void Iceman::doSomething()
 {
-
-	//check player's area for ice overlapping
-	//Ice*** ice = getWorld()->getIce();
-	//for (int i = 0; i <= 3; ++i) {
-	//	for (int j = 0; j <= 3; ++j) {
-	//		if (getX() + i <= 64 && getY() + j <= 59) { //MADE A WRONG ADDITION!!
-	//			if (ice[getX() + i][getY() + j] != nullptr) {
-	//				//if overlapped
-	//				delete ice[getX() + i][getY() + j];
-	//				ice[getX() + i][getY() + j] = nullptr;
-	//				getWorld()->playSound(SOUND_DIG);
-	//			}
-	//		}
-	//	}
-	//}
-
-	getWorld()->clearIce(getX(), getY());
-
 	int ch;
-	//forward declaration; implementation has to be seperate from header file
+	//implementation of a forward declaration has to be seperate from header file
 	if (getWorld()->getKey(ch) == true) {
-
 		switch (ch) {
-		case KEY_PRESS_LEFT: //need to add obstacle check
+		case KEY_PRESS_LEFT:
 			if (getDirection() != left)
 				setDirection(left);
 			else {
@@ -101,6 +91,6 @@ void Iceman::doSomething()
 		}
 	}
 
-
+	getWorld()->clearIce(getX(), getY());
 
 }
