@@ -106,7 +106,7 @@ bool StudentWorld::canActorMoveTo(Actor* a, int x, int y) const
 			if (!it->canActorPassThroughMe())	return false;
 	}
 
-	//check if can the actor move the destination within one move
+	//checcan the actor move the destination within one move
 	if ((x - 1 == a->getX() && y == a->getY())
 		|| (x + 1 == a->getX() && y == a->getY())
 		|| (x == a->getX() && y - 1 == a->getY())

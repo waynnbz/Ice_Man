@@ -57,16 +57,15 @@ public:
 		// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
 		
 
-		return GWSTATUS_PLAYER_DIED;
-
 		sw_iceman->doSomething();
 
-		//release dead actors
 		for (auto it = sw_actors.begin(); it != sw_actors.end(); ) {
+			//release dead actors
 			if (!(*it)->isAlive()) {
 				delete *it;
 				it = sw_actors.erase(it);
 			}
+			//all actors do something
 			else {
 				(*it)->doSomething();
 				++it; 
@@ -89,14 +88,15 @@ public:
 	virtual void cleanUp()
 	{
 		//delete ice
-		//for (int i = 0; i <= VIEW_WIDTH; ++i) {
-		//	for (int j = 0; j < VIEW_HEIGHT-4; ++j) {
-		//		delete sw_ice[i][j];
-		//		sw_ice[i][j] = nullptr;
-		//	}
-		//	delete[] *sw_ice[i];
-		//}
-		//delete[] **sw_ice; //messed up
+		//wrong boundary not <= here
+		for (int i = 0; i < VIEW_WIDTH; ++i) {
+			for (int j = 0; j < VIEW_HEIGHT-4; ++j) {
+				delete sw_ice[i][j];
+				sw_ice[i][j] = nullptr;
+			}
+			delete[] *sw_ice[i];
+		}
+		delete[] **sw_ice; //messed up
 
 		//delete iceman
 		delete sw_iceman;

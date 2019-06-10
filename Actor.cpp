@@ -37,7 +37,6 @@ void Boulder::doSomething()
 				getWorld()->playSound(SOUND_FALLING_ROCK);
 				getWorld()->annoyAllNearbyActors(this, 100, 3);
 			}
-
 			else{
 				m_state = dead;
 				setDead();

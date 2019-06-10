@@ -39,7 +39,6 @@ public:
 		return m_world;
 	}
 
-
 	virtual bool canActorPassThroughMe() const {
 		return false;
 	};
