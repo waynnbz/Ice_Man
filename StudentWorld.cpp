@@ -33,31 +33,8 @@ double getRadius(Actor* a, Actor* b) {
 
 
 //*******************Member Helper***********
-
-void StudentWorld::initActors()
-{
-	std::srand(time(NULL));
-
-	int currentLevel = getLevel();
-
-	//add boulder
-	for (int i = 0; i < std::min(currentLevel / 2 + 2, 9); ++i) {
-
-		int x_rand = rand() % (VIEW_WIDTH - 4);
-		int y_rand = rand() % (VIEW_HEIGHT - 8);
-
-		while (y_rand < 20 || (x_rand > 26 && x_rand < 34)
-			|| !wellDistributed(x_rand, y_rand, sw_actors)) {
-			x_rand = rand() % (VIEW_WIDTH - 4);
-			y_rand = rand() % (VIEW_HEIGHT - 8);
-		}
-		clearIce(x_rand, y_rand);
-		Boulder* temp = new Boulder(this, x_rand, y_rand);
-		sw_actors.push_back(temp);
-	}
-
-
-
+void StudentWorld::addActor(Actor* a) {
+	sw_actors.push_back(a);
 }
 
 
@@ -104,7 +81,7 @@ bool StudentWorld::canActorMoveTo(Actor* a, int x, int y) const
 	for (auto it : sw_actors) {
 		if (it == a);
 		else if (abs(x - it->getX()) <= 3 && abs(y - it->getY()) <= 3)
-			if (!it->canActorPassThroughMe())	return false;
+			if (!it->canActorsPassThroughMe())	return false;
 	}
 
 	//checcan the actor move the destination within one move
@@ -129,15 +106,19 @@ int StudentWorld::annoyAllNearbyActors(Actor* annoyer, int points, int radius)
 	int count = 0;
 
 	//will annoyer ever be iceman??
-	if (getRadius(annoyer, sw_iceman) <= radius) {
-		sw_iceman->annoy(points);
-		++count;
+	if (annoyer->huntsIceMan()) {
+		if (getRadius(annoyer, sw_iceman) <= radius) {
+			sw_iceman->annoy(points);
+			++count;
+		}
 	}
 
 	//annoy all other actors
 	for (auto it = sw_actors.begin(); it != sw_actors.end(); ++it) {
-		if (getRadius(annoyer, *it) <= radius) {
+		if (*it == annoyer);
+		else if (getRadius(annoyer, *it) <= radius) {
 			(*it)->annoy(points);
+			++count;
 		}
 	}
 
@@ -153,4 +134,84 @@ int StudentWorld::annoyAllNearbyActors(Actor* annoyer, int points, int radius)
 }
 
 
+
+Actor* StudentWorld::findNearbyIceMan(Actor* a, int radius) const {
+	if (getRadius(sw_iceman, a) <= radius)
+		return sw_iceman;
+	else
+		return nullptr;
+}
+
+
+Actor* StudentWorld::findNearbyPicker(Actor* a, int radius) const {
+	for (auto it = sw_actors.begin(); it != sw_actors.end(); ++it) {
+		if ((*it)->canPickThingsUp()) {
+			if (getRadius(*it, a) <= radius)
+				return *it;
+		}
+	}
+	return nullptr;
+}
+
+
+
+//**************DIY helper
+void StudentWorld::initActors()
+{
+	std::srand(time(NULL));
+
+	int currentLevel = getLevel();
+
+	//distribute boulder
+	for (int i = 0; i < std::min(currentLevel / 2 + 2, 9); ++i) 
+	{
+		int x_rand = rand() % (VIEW_WIDTH - 4);
+		int y_rand = rand() % (VIEW_HEIGHT - 8);
+
+		while (y_rand < 20 || (x_rand > 26 && x_rand < 34)
+			|| !wellDistributed(x_rand, y_rand, sw_actors)) {
+			x_rand = rand() % (VIEW_WIDTH - 4);
+			y_rand = rand() % (VIEW_HEIGHT - 8);
+		}
+		clearIce(x_rand, y_rand);
+		//Boulder* temp = new Boulder(this, x_rand, y_rand);
+		//using rvalue move instead
+		sw_actors.push_back(new Boulder(this, x_rand, y_rand));
+	}
+
+	//distribute Oil Barrel
+	setOil(std::min(2 + currentLevel, 21));
+	for (unsigned int i = 0; i < getOil(); ++i)
+	{
+		int x_rand = rand() % (VIEW_WIDTH - 4);
+		int y_rand = rand() % (VIEW_HEIGHT - 8);
+
+		while ((y_rand > 4 && x_rand > 26 && x_rand < 34)
+			|| !wellDistributed(x_rand, y_rand, sw_actors)) {
+			x_rand = rand() % (VIEW_WIDTH - 4);
+			y_rand = rand() % (VIEW_HEIGHT - 8);
+		}
+
+		sw_actors.push_back(new OilBarrel(this, x_rand, y_rand));
+
+	}
+
+	//distribute Gold Nugget
+	for (int i = 0; i < max(5 - currentLevel / 2, 21); ++i) {
+
+		int x_rand = rand() % (VIEW_WIDTH - 4);
+		int y_rand = rand() % (VIEW_HEIGHT - 8);
+
+		while ((y_rand > 4 && x_rand > 26 && x_rand < 34)
+			|| !wellDistributed(x_rand, y_rand, sw_actors)) {
+			x_rand = rand() % (VIEW_WIDTH - 4);
+			y_rand = rand() % (VIEW_HEIGHT - 8);
+		}
+
+		sw_actors.push_back(new GoldNugget(this, 
+			x_rand, y_rand, true, true, true));
+
+	}
+
+}
 

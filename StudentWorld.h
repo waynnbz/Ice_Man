@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 #include "Actor.h"
 
@@ -53,9 +55,20 @@ public:
 
 	virtual int move()
 	{
-		// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
 		// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
-		
+		std::stringstream ss;
+		ss << "Lvl: " << getLevel() 
+			<< "  Lives: " << getLives()
+			<< "  Hlth: " << std::setw(2) << sw_iceman->getHitPoints()
+			<< "%  Wtr: " << std::setw(2) << sw_iceman->getWater()
+			<< "  Gld: " << std::setw(2) << sw_iceman->getGold()
+			<< "  Oil Left: " << std::setw(2) << getOil()
+			<< "  Sonar: " << std::setw(2) << sw_iceman->getSonar()
+			<< "  Scr: " << std::setw(6) << std::setfill('0') 
+			<< getScore();
+		std::string s = ss.str();
+
+		setGameStatText(s);
 
 		sw_iceman->doSomething();
 
@@ -109,10 +122,26 @@ public:
 	}
 
 	//helpers
-	void initActors();
+	void addActor(Actor* a);
 	void clearIce(int x, int y);
 	bool canActorMoveTo(Actor* a, int x, int y) const;
 	int annoyAllNearbyActors(Actor* annoyer, int points, int radius);
+
+	Actor* findNearbyIceMan(Actor* a, int radius) const;
+	Actor* findNearbyPicker(Actor* a, int radius) const;
+
+
+	//DIY helper
+	void initActors();
+	void setOil(int oil) {
+		m_oil = oil;
+	}
+	unsigned int getOil() const {
+		return m_oil;
+	}
+	void decOil() {
+		--m_oil;
+	}
 
 
 
@@ -135,6 +164,7 @@ public:
 
 private:
 	//std::unique_ptr<Ice**> sw_ice;
+	unsigned int m_oil;
 	Ice*** sw_ice;
 	Iceman* sw_iceman;
 	std::vector<Actor*> sw_actors;

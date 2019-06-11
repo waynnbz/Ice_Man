@@ -40,7 +40,7 @@ public:
 		return m_world;
 	}
 
-	virtual bool canActorPassThroughMe() const {
+	virtual bool canActorsPassThroughMe() const {
 		return false;
 	};
 
@@ -48,6 +48,15 @@ public:
 		return false;
 	}
 
+	virtual bool canPickThingsUp() const {
+		return false;
+	}
+
+	virtual bool huntsIceMan() const {
+		return true;
+	}
+
+	virtual void addGold() {}
 
 	bool moveToIfPossible(int x, int y);
 
@@ -102,10 +111,14 @@ class Squirt : public Actor
 public:
 	Squirt(StudentWorld* world, int startX, int startY, Direction dir)
 		: Actor(world, IID_WATER_SPURT, startX, startY, dir, 1.0, 1) {
-		setVisible(true);
 		m_travelDistance = 4;
+		setVisible(false);
 	}
 	~Squirt() {}
+
+	virtual bool huntsIceMan() const  override {
+		return false;
+	}
 
 	virtual void doSomething();
 
@@ -115,11 +128,76 @@ private:
 };
 
 
-//********************Object
+//********************Activating Object
+class ActivatingObject : public Actor
+{
+public:
+
+	ActivatingObject(StudentWorld* world, int imageID, int startX, int startY,
+		bool activateOnPlayer, bool isPermanent, bool isVisible)
+		: Actor(world, imageID, startX, startY, right, 1.0, 2) {
+		m_pickable = activateOnPlayer;
+		setVisible(isVisible);
+		m_state = isPermanent;
+	}
+	
+
+	virtual void doSomething() {};
+
+	virtual bool canActorsPassThroughMe() const {
+		return true;
+	}
+
+	void setTicksToLive() {};
+
+	void setPickableByIceman(bool p) {
+		m_pickable = p;
+	}
+
+	bool isPickableByIceman() const{
+		return m_pickable;
+	}
+
+	void setState(bool p) {
+		m_state = p;
+	}
+
+private:
+	bool m_pickable;
+	bool m_state;
+};
+
+class OilBarrel : public ActivatingObject 
+{
+public:
+
+	OilBarrel(StudentWorld* world, int startX, int startY)
+		: ActivatingObject(world, IID_BARREL, startX, startY, true, true, true) {
+		}
+	~OilBarrel() {}
+
+	virtual void doSomething();
+};
+
+class GoldNugget : public ActivatingObject
+{
+public:
+	
+	GoldNugget(StudentWorld* world, int startX, int startY, 
+		bool pickableByIceman, bool isPermanent, bool isVisible )
+		: ActivatingObject(world, IID_GOLD, startX, startY, 
+			pickableByIceman, isPermanent, isVisible) {
+	}
+	~GoldNugget() {}
+
+	virtual void doSomething();
+
+
+private:
+};
 
 
 //********************Agents
-
 class Agent : public Actor
 {
 public:
@@ -128,8 +206,6 @@ public:
 	{
 		m_hitPoints = hitPoints;
 	};
-
-	virtual void addGold() = 0;
 
 	unsigned int getHitPoints() const {
 		return m_hitPoints;
@@ -141,7 +217,11 @@ public:
 			setDead();
 		return true;
 	}
-	//virtual bool canPickThingsUp() const;
+	
+	
+	virtual bool canPickThingsUp() const override{
+		return true;
+	}
 
 
 private:
@@ -155,17 +235,27 @@ public:
 	Iceman(StudentWorld* world = nullptr, int x = 30, int y = 60) 
 		: Agent(world, IID_PLAYER, x, y, right, 100) {
 		m_water = 5;
+		m_gold = 0;
+		m_sonar = 1;
 	};
 	~Iceman() {};
 
-	virtual void doSomething();
+	virtual void doSomething() override;
 
-	virtual bool canDigThroughIce() const {
+	virtual bool canDigThroughIce() const override {
 		return true;
 	}
 
-	void addGold() {
+	virtual void addGold() override{
+		++m_gold;
+	}
 
+	unsigned int getGold() const {
+		return m_gold;
+	}
+
+	unsigned int getSonar() const {
+		return m_sonar;
 	}
 
 	unsigned int getWater() const {
@@ -176,6 +266,8 @@ public:
 
 private:
 	unsigned int m_water;
+	unsigned int m_gold;
+	unsigned int m_sonar;
 };
 
 #endif // ACTOR_H_

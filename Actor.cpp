@@ -3,13 +3,12 @@
 
 //******Actor
 bool Actor::moveToIfPossible(int x, int y) {
-	//boundary check only
-	if (x >= 0 && x <= VIEW_WIDTH - 4 && y >= 0 && y <= VIEW_HEIGHT - 4) {
-		if (getWorld()->canActorMoveTo(this, x, y)) {
-			moveTo(x, y);
-			return true;
-		}
+
+	if (getWorld()->canActorMoveTo(this, x, y)) {
+		moveTo(x, y);
+		return true;
 	}
+
 	return false;
 }
 
@@ -49,40 +48,121 @@ void Boulder::doSomething()
 //********************Squirt
 void Squirt::doSomething()
 {
+	
+	//travel if no encounter happened
+	switch (getDirection()) {
+	case up:
+		if (moveToIfPossible(getX(), getY() + 1)) {
+			--m_travelDistance;
+			//setVisible(true);
+		}
+		else {
+			setDead();
+			return;
+		}
+		break;
+	case down:
+		if (moveToIfPossible(getX(), getY() - 1)) {
+			--m_travelDistance;
+			//setVisible(true);
+		}
+		else {
+			setDead();
+			return;
+		}
+		break;
+	case left:
+		if (moveToIfPossible(getX() - 1, getY())) {
+			--m_travelDistance;
+			//setVisible(true);
+		}
+		else {
+			setDead();
+			return;
+		}
+		break;
+	case right:
+		if (moveToIfPossible(getX() + 1, getY())) {
+			--m_travelDistance;
+			//setVisible(true);
+		}
+		else {
+			setDead();
+			return;
+		}
+		break;
+	default:
+		break;
+	}
+	setVisible(true);
+
 	//annnoy protests and check travel distance
-	if (getWorld()->annoyAllNearbyActors(this, 2, 3) 
+	if (getWorld()->annoyAllNearbyActors(this, 2, 3)
 		|| m_travelDistance == 0) {
 		setDead();
 		return;
 	}
 
-	//travel if no encounter happened
-	switch (getDirection()) {
-	case up:
-		if (moveToIfPossible(getX(), getY() + 1))
-			--m_travelDistance;
-		else
-			setDead();
-	case down:
-		if (moveToIfPossible(getX(), getY() - 1))
-			--m_travelDistance;
-		else
-			setDead();
-	case left:
-		if (moveToIfPossible(getX() - 1, getY()))
-			--m_travelDistance;
-		else
-			setDead();
-	case right:
-		if (moveToIfPossible(getX() + 1, getY()))
-			--m_travelDistance;
-		else
-			setDead();
-	default:
-		throw 0;
-	}
 
 	return;
+}
+
+
+//*****Activating Object
+
+//********************Oil Barrel
+void OilBarrel::doSomething() {
+	if (!isAlive())	return;
+
+	if (getWorld()->findNearbyIceMan(this, 4) != nullptr)
+		setVisible(true);
+	else
+		return;
+
+	Actor* t_iceMan = getWorld()->findNearbyIceMan(this, 3);
+	if (t_iceMan != nullptr) {
+		setDead();
+		getWorld()->playSound(SOUND_FOUND_OIL);
+		getWorld()->increaseScore(1000);
+		getWorld()->decOil();
+	}
+	return;
+}
+
+//********************Gold Nugget
+void GoldNugget::doSomething() 
+{
+	if (!isAlive()) return;
+
+	if (getWorld()->findNearbyIceMan(this, 4) != nullptr)
+		setVisible(true);
+	else
+		return;
+
+	Actor* picker;
+
+	//pickable by Ice man
+	if (isPickableByIceman()) {
+		picker = getWorld()->findNearbyIceMan(this, 3);
+
+		if (picker != nullptr) {
+			setDead();
+			getWorld()->playSound(SOUND_GOT_GOODIE);
+			getWorld()->increaseScore(10);
+			picker->addGold();
+		}
+	}
+	//pickable by protester
+	else {
+		picker = getWorld()->findNearbyPicker(this, 3);
+
+		if (picker != nullptr) {
+			setDead();
+			getWorld()->playSound(SOUND_PROTESTER_FOUND_GOLD);
+			//activate bribed function in protestor
+			getWorld()->increaseScore(25);
+		}
+	}
 }
 
 
@@ -124,7 +204,26 @@ void Iceman::doSomething()
 			break;
 		case KEY_PRESS_SPACE:
 			if (m_water > 0) {
-
+				switch (getDirection()) {
+				case up:
+					getWorld()->addActor(new Squirt(getWorld(), 
+						getX(), getY() + 4, getDirection()));
+					break;
+				case down:
+					getWorld()->addActor(new Squirt(getWorld(),
+						getX(), getY() - 4, getDirection()));
+					break;
+				case left:
+					getWorld()->addActor(new Squirt(getWorld(),
+						getX() - 4, getY(), getDirection()));
+					break;
+				case right:
+					getWorld()->addActor(new Squirt(getWorld(),
+						getX() + 4, getY(), getDirection()));
+					break;
+				}
+				getWorld()->playSound(SOUND_PLAYER_SQUIRT);
+				--m_water;
 			}
 			break;
 		default:
