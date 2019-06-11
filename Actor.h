@@ -56,7 +56,13 @@ public:
 		return true;
 	}
 
+	virtual bool isAnnoyable() const {
+		return false;
+	}
+
 	virtual void addGold() {}
+	virtual void addSonar() {}
+	virtual void addWater() {}
 
 	bool moveToIfPossible(int x, int y);
 
@@ -149,6 +155,10 @@ public:
 		return true;
 	}
 
+	void setWaitTime(int t) {
+		waitTime = t;
+	}
+
 	void setTicksToLive() {
 		if (waitTime > 0)	
 			--waitTime;
@@ -200,6 +210,21 @@ public:
 private:
 };
 
+class SonarKit : public ActivatingObject
+{
+public:
+
+	SonarKit(StudentWorld* world, int startX, int startY)
+		: ActivatingObject(world, IID_SONAR, startX, startY,
+			true, false, true) {
+
+	}
+	~SonarKit() {}
+
+	virtual void doSomething();
+
+};
+
 
 //********************Agents
 class Agent : public Actor
@@ -224,6 +249,10 @@ public:
 	
 	
 	virtual bool canPickThingsUp() const override{
+		return true;
+	}
+
+	virtual bool isAnnoyable() const override {
 		return true;
 	}
 
@@ -253,19 +282,29 @@ public:
 	virtual void addGold() override{
 		++m_gold;
 	}
-
 	void decGold() {
 		--m_gold;
 	}
-
 	unsigned int getGold() const {
 		return m_gold;
 	}
-
+	
+	virtual void addSonar() override{
+		++m_sonar;
+	}
+	void decSonar() {
+		--m_sonar;
+	}
 	unsigned int getSonar() const {
 		return m_sonar;
 	}
 
+	/*virtual void addWater() override {
+		++m_water;
+	}
+	void decWater{
+		--m_water;
+	}*/
 	unsigned int getWater() const {
 		return m_water;
 	}

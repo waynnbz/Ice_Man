@@ -115,10 +115,12 @@ int StudentWorld::annoyAllNearbyActors(Actor* annoyer, int points, int radius)
 
 	//annoy all other actors
 	for (auto it = sw_actors.begin(); it != sw_actors.end(); ++it) {
-		if (*it == annoyer);
-		else if (getRadius(annoyer, *it) <= radius) {
-			(*it)->annoy(points);
-			++count;
+		if ((*it)->isAnnoyable()) {
+			if (*it == annoyer);
+			else if (getRadius(annoyer, *it) <= radius) {
+				(*it)->annoy(points);
+				++count;
+			}
 		}
 	}
 
@@ -212,6 +214,10 @@ void StudentWorld::initActors()
 			x_rand, y_rand, true, true, true));
 
 	}
+
+
+	//temp add sonar
+	sw_actors.push_back(new SonarKit(this, 0, 60));
 
 }
 
