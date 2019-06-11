@@ -217,7 +217,10 @@ void StudentWorld::initActors()
 
 
 	//temp add sonar
-	sw_actors.push_back(new SonarKit(this, 0, 60));
+	sw_actors.push_back(new SonarKit(this, 0, 60, currentLevel));
+	//temp add water
+	sw_actors.push_back(new WaterPool(this, 8, 60, currentLevel));
+	sw_actors.push_back(new WaterPool(this, 16, 60, currentLevel));
 
 }
 

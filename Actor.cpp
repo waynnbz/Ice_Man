@@ -109,7 +109,6 @@ void Squirt::doSomething()
 
 
 //*****Activating Object
-
 //********************Oil Barrel
 void OilBarrel::doSomething() {
 	if (!isAlive())	return;
@@ -183,10 +182,22 @@ void SonarKit::doSomething()
 		getWorld()->increaseScore(75);
 	}
 	return;
+}
 
+//********************Water Pool
+void WaterPool::doSomething() {
+	if (!isAlive())	return;
 
+	setTicksToLive();
 
-
+	Actor* t_iceMan = getWorld()->findNearbyIceMan(this, 3);
+	if (t_iceMan != nullptr) {
+		setDead();
+		getWorld()->playSound(SOUND_GOT_GOODIE);
+		t_iceMan->addWater();
+		getWorld()->increaseScore(100);
+	}
+	return;
 }
 
 

@@ -2,6 +2,7 @@
 #define ACTOR_H_
 
 #include "GraphObject.h"
+#include <algorithm>
 
 class StudentWorld;
 
@@ -210,18 +211,36 @@ public:
 private:
 };
 
+
 class SonarKit : public ActivatingObject
 {
 public:
 
-	SonarKit(StudentWorld* world, int startX, int startY)
+	SonarKit(StudentWorld* world, int startX, int startY, int cLevel)
 		: ActivatingObject(world, IID_SONAR, startX, startY,
 			true, false, true) {
-
+		setWaitTime(std::max(100, 300 - 10*cLevel));
 	}
 	~SonarKit() {}
 
 	virtual void doSomething();
+
+};
+
+
+class WaterPool : public ActivatingObject
+{
+public:
+
+	WaterPool(StudentWorld* world, int startX, int startY, int cLevel)
+		: ActivatingObject(world, IID_WATER_POOL, startX, startY, 
+			true, false, true) {
+		setWaitTime(std::max(100, 300 - 10 * cLevel));
+	}
+	~WaterPool() {}
+
+	virtual void doSomething();
+
 
 };
 
@@ -299,16 +318,15 @@ public:
 		return m_sonar;
 	}
 
-	/*virtual void addWater() override {
-		++m_water;
+	virtual void addWater() override {
+		m_water += 5;
 	}
-	void decWater{
+	void decWater() {
 		--m_water;
-	}*/
+	}
 	unsigned int getWater() const {
 		return m_water;
 	}
-
 
 
 private:
