@@ -2,7 +2,6 @@
 //#include "Actor.h"
 #include <string>
 #include <ctime>
-#include <queue>
 using namespace std;
 
 
@@ -84,7 +83,7 @@ bool StudentWorld::canActorMoveTo(Actor* a, int x, int y) const
 			if (!it->canActorsPassThroughMe())	return false;
 	}
 
-	//checcan the actor move the destination within one move
+	//check can the actor move to the destination within one move
 	if ((x - 1 == a->getX() && y == a->getY())
 		|| (x + 1 == a->getX() && y == a->getY())
 		|| (x == a->getX() && y - 1 == a->getY())
@@ -134,6 +133,62 @@ int StudentWorld::annoyAllNearbyActors(Actor* annoyer, int points, int radius)
 
 	return count;
 }
+
+
+// bad code
+bool StudentWorld::facingTowardIceMan(Actor* a) const
+{
+	switch (a->getDirection()) {
+	case 1: //up
+		if (abs(a->getX()-sw_iceman->getX()) < 4
+			&& sw_iceman->getY() - a->getY() > 0)
+			return true;
+		break;
+	case 2: //down
+		if (abs(a->getX() - sw_iceman->getX()) < 4
+			&& sw_iceman->getY() - a->getY() < 0)
+			return true;
+		break;
+	case 3: //left
+		if (abs(a->getY() - sw_iceman->getY()) < 4
+			&& sw_iceman->getX() - a->getX() < 0)
+			return true;
+		break;
+	case 4: //right
+		if (abs(a->getY() - sw_iceman->getY()) < 4
+			&& sw_iceman->getX() - a->getX() > 0)
+			return true;
+		break;
+	}
+
+	return false;
+}
+
+
+//not done
+GraphObject::Direction StudentWorld::lineOfSightToIceMan(Actor* a) const 
+{
+
+	if (abs(a->getX() - sw_iceman->getX()) < 4)
+	{
+		if (a->getY() - sw_iceman->getY() > 0)
+			return GraphObject::down;
+		else
+			return GraphObject::up;
+	}
+	
+	if(abs(a->getY() - sw_iceman->getY()) < 4) 
+	{
+		if (a->getX() - sw_iceman->getX() > 0)
+			return GraphObject::left;
+		else
+			return GraphObject::right;
+
+	}
+
+	return GraphObject::none;
+}
+
 
 
 
@@ -199,7 +254,7 @@ void StudentWorld::initActors()
 	}
 
 	//distribute Gold Nugget
-	for (int i = 0; i < max(5 - currentLevel / 2, 21); ++i) {
+	for (int i = 0; i < max(5 - currentLevel / 2, 2); ++i) {
 
 		int x_rand = rand() % (VIEW_WIDTH - 4);
 		int y_rand = rand() % (VIEW_HEIGHT - 8);
@@ -211,7 +266,7 @@ void StudentWorld::initActors()
 		}
 
 		sw_actors.push_back(new GoldNugget(this, 
-			x_rand, y_rand, true, true, true));
+			x_rand, y_rand, true, true, false));
 
 	}
 
@@ -219,8 +274,32 @@ void StudentWorld::initActors()
 	//temp add sonar
 	sw_actors.push_back(new SonarKit(this, 0, 60, currentLevel));
 	//temp add water
-	sw_actors.push_back(new WaterPool(this, 8, 60, currentLevel));
-	sw_actors.push_back(new WaterPool(this, 16, 60, currentLevel));
+	sw_actors.push_back(new WaterPool(this, 50, 60, currentLevel));
+	sw_actors.push_back(new WaterPool(this, 30, 32, currentLevel));
 
 }
+
+
+//not done
+void StudentWorld::updateCostMap() 
+{
+	std::queue<std::pair<int, bool>> q;
+	int x = 60;
+	int y = 60;
+	int count = 0;
+	
+	
+	do{
+		if(sw_ice[x][y] == nullptr)
+		costMap[x][y].first = count;
+		costMap[x][y].second = true;
+		q.push(costMap[x][y]);
+
+
+
+	} while (!q.empty());
+
+}
+
+
 

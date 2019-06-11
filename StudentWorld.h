@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <queue>
+#include <utility>
 
 #include "Actor.h"
 
@@ -48,6 +50,13 @@ public:
 
 		//add actors
 		initActors();
+
+		for (int i = 0; i != 60; ++i) {
+			for (int j = 0; j != 60; ++j) {
+				costMap[i][j].first = -1;
+				costMap[i][j].second = false;
+			}
+		}
 
 
 		return GWSTATUS_CONTINUE_GAME;
@@ -126,9 +135,13 @@ public:
 	void clearIce(int x, int y);
 	bool canActorMoveTo(Actor* a, int x, int y) const;
 	int annoyAllNearbyActors(Actor* annoyer, int points, int radius);
+	bool facingTowardIceMan(Actor* a) const;
+	GraphObject::Direction lineOfSightToIceMan(Actor* a) const;
+
 
 	Actor* findNearbyIceMan(Actor* a, int radius) const;
 	Actor* findNearbyPicker(Actor* a, int radius) const;
+
 
 
 	//DIY helper
@@ -142,6 +155,8 @@ public:
 	void decOil() {
 		--m_oil;
 	}
+
+	void updateCostMap();
 
 
 
@@ -168,6 +183,7 @@ private:
 	Ice*** sw_ice;
 	Iceman* sw_iceman;
 	std::vector<Actor*> sw_actors;
+	std::pair<int,bool> costMap[60][60];
 };
 
 #endif // STUDENTWORLD_H_

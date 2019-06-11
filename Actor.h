@@ -68,6 +68,24 @@ public:
 	bool moveToIfPossible(int x, int y);
 
 
+	bool moveInDir(Direction dir) {
+		switch (dir) {
+		case up:
+			return moveToIfPossible(getX(), getY() + 1);
+			break;
+		case down:
+			return moveToIfPossible(getX(), getY() - 1);
+			break;
+		case left:
+			return moveToIfPossible(getX() - 1, getY());
+			break;
+		case right:
+			return moveToIfPossible(getX() + 1, getY());
+			break;
+		}
+	}
+
+
 
 private:
 	StudentWorld* m_world;
@@ -187,7 +205,7 @@ class OilBarrel : public ActivatingObject
 public:
 
 	OilBarrel(StudentWorld* world, int startX, int startY)
-		: ActivatingObject(world, IID_BARREL, startX, startY, true, true, true) {
+		: ActivatingObject(world, IID_BARREL, startX, startY, true, true, false) {
 		}
 	~OilBarrel() {}
 
@@ -211,7 +229,6 @@ public:
 private:
 };
 
-
 class SonarKit : public ActivatingObject
 {
 public:
@@ -226,7 +243,6 @@ public:
 	virtual void doSomething();
 
 };
-
 
 class WaterPool : public ActivatingObject
 {
@@ -249,7 +265,8 @@ public:
 class Agent : public Actor
 {
 public:
-	Agent(StudentWorld* world, int imageID, int startX, int startY, Direction startDir, unsigned int hitPoints)
+	Agent(StudentWorld* world, int imageID, int startX, 
+		int startY, Direction startDir, unsigned int hitPoints)
 		: Actor(world, imageID, startX, startY, startDir) 
 	{
 		m_hitPoints = hitPoints;
@@ -334,5 +351,94 @@ private:
 	unsigned int m_gold;
 	unsigned int m_sonar;
 };
+
+
+class Protestor : public Agent 
+{
+public:
+	Protestor(StudentWorld* world, int cLevel, int startX, int startY, int imageID,
+		unsigned int hitPoints, unsigned int score) 
+		: Agent(world, imageID, startX, startY, left, hitPoints) {
+		m_leavingState = false;
+		setVisible(true);
+		m_restingTicks = std::max(0, 3 - cLevel / 4);
+		m_ticking = m_restingTicks;
+		m_shoutInv = 15;
+	}
+	~Protestor() {}
+
+	//int numSquaresToMoveInCurrentDirection
+
+	bool ticking() {
+		if (m_ticking > 0) {
+			--m_ticking;
+			return true;
+		}
+		else {
+			m_ticking = m_restingTicks;
+			return false;
+		}
+	}
+
+	bool isConShouts() {
+		if (m_shoutInv > 0) {
+			--m_shoutInv;
+			return true;
+		}
+		else {
+			m_shoutInv = 15;
+			return false;
+		}
+	}
+
+	bool isLeavingState() const {
+		return m_leavingState;
+	}
+	void setState(bool s) {
+		m_leavingState = s;
+	}
+
+
+private:
+	bool m_leavingState;
+	int m_ticking;
+	int m_restingTicks;
+	int m_shoutInv;
+};
+
+//not done
+class RegularProtestor : public Protestor
+{
+public:
+	RegularProtestor(StudentWorld* world, int cLevel, int startX = 60, int startY = 60) 
+		:  Protestor(world, cLevel, startX, startY, IID_PROTESTER, 5, 100){
+
+
+	}
+	~RegularProtestor() {}
+
+	
+
+	virtual void doSomething();
+
+
+};
+
+//not done
+class HardCoreProtestor : public Protestor
+{
+public:
+	HardCoreProtestor(StudentWorld* world, int cLevel, int startX = 60, int startY = 60)
+		: Protestor(world, cLevel, startX, startY, IID_HARD_CORE_PROTESTER, 20, 250) {
+
+	}
+	~HardCoreProtestor() {}
+
+
+
+	virtual void doSomething();
+
+};
+
 
 #endif // ACTOR_H_

@@ -277,3 +277,44 @@ void Iceman::doSomething()
 	getWorld()->clearIce(getX(), getY());
 
 }
+
+void RegularProtestor::doSomething() 
+{
+	if (!isAlive())	return;
+	if (ticking())	return;
+
+	//state check
+	if (isLeavingState()) {
+		
+		if (getX() == 60 && getY() == 60) setDead();
+
+
+
+
+
+	}
+	else {
+		Actor* im = getWorld()->findNearbyIceMan(this, 4);
+		if (im != nullptr && getWorld()->facingTowardIceMan(this)) {
+			//problem here fix reinitial the shouting interval counts
+			if (!isConShouts())
+				im->annoy(2);
+			return;
+		}
+
+
+	}
+
+
+}
+
+
+void HardCoreProtestor::doSomething()
+{
+	if (!isAlive())	return;
+	if (ticking())	return;
+
+
+
+
+}
