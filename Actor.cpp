@@ -134,6 +134,9 @@ void GoldNugget::doSomething()
 {
 	if (!isAlive()) return;
 
+	if (!isPermanent())
+		setTicksToLive();
+
 	if (getWorld()->findNearbyIceMan(this, 4) != nullptr)
 		setVisible(true);
 	else
@@ -225,6 +228,14 @@ void Iceman::doSomething()
 				getWorld()->playSound(SOUND_PLAYER_SQUIRT);
 				--m_water;
 			}
+			break;
+		case KEY_PRESS_TAB:
+			if (getGold() > 0) {
+				getWorld()->addActor(new GoldNugget(getWorld(),
+					getX(), getY(), false, false, true));
+				decGold();
+			}
+
 			break;
 		default:
 			break;

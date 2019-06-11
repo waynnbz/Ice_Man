@@ -139,6 +139,7 @@ public:
 		m_pickable = activateOnPlayer;
 		setVisible(isVisible);
 		m_state = isPermanent;
+		waitTime = 100;
 	}
 	
 
@@ -148,23 +149,26 @@ public:
 		return true;
 	}
 
-	void setTicksToLive() {};
-
-	void setPickableByIceman(bool p) {
-		m_pickable = p;
+	void setTicksToLive() {
+		if (waitTime > 0)	
+			--waitTime;
+		else
+			setDead();
 	}
 
 	bool isPickableByIceman() const{
 		return m_pickable;
 	}
 
-	void setState(bool p) {
-		m_state = p;
+	bool isPermanent() const {
+		return m_state;
 	}
+
 
 private:
 	bool m_pickable;
 	bool m_state;
+	unsigned int waitTime;
 };
 
 class OilBarrel : public ActivatingObject 
@@ -248,6 +252,10 @@ public:
 
 	virtual void addGold() override{
 		++m_gold;
+	}
+
+	void decGold() {
+		--m_gold;
 	}
 
 	unsigned int getGold() const {
